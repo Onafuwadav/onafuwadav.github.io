@@ -158,11 +158,13 @@ h1 { margin: 0; font-size: 28px; font-weight: 700; color: var(--amber); letter-s
 }
 
 /* skills rack */
-dialog#rack, dialog#crate, dialog#notes, dialog#chess, dialog#maze, dialog#focus, dialog#pulse {
+dialog#rack, dialog#crate, dialog#notes, dialog#chess, dialog#maze, dialog#focus, dialog#pulse, dialog#forecast {
   width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: hidden auto;
   background: var(--panel); color: var(--ink); border: 4px solid var(--amber); padding: 14px;
 }
-dialog#rack::backdrop, dialog#crate::backdrop, dialog#notes::backdrop, dialog#chess::backdrop, dialog#maze::backdrop, dialog#focus::backdrop, dialog#pulse::backdrop { background: rgba(10, 6, 12, .78); }
+dialog#rack::backdrop, dialog#crate::backdrop, dialog#notes::backdrop, dialog#chess::backdrop, dialog#maze::backdrop, dialog#focus::backdrop, dialog#pulse::backdrop, dialog#forecast::backdrop { background: rgba(10, 6, 12, .78); }
+#forecast img { display: block; width: 100%; height: auto; margin: 0 0 10px; background: #fff; }
+#forecast a.close { text-decoration: none; display: inline-block; }  
 .rack-head { display: flex; align-items: center; justify-content: space-between; gap: 0px; margin-bottom: 0px; }
 .rack-head h2 { margin: 0; font-size: 22px; color: var(--amber); }
 .close:hover, .close:focus-visible { border-color: var(--amber); outline: none; }
@@ -381,6 +383,21 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
   </div>
 </dialog>
 
+<dialog id="forecast" aria-labelledby="fc-title">
+  <div class="rack-head">
+    <h2 id="fc-title">Live demand forecast</h2>
+    <button class="close" id="fc-close" type="button">Close</button>
+  </div>
+  <p class="chess-note">At <span class="num">3</span>am a GitHub Actions job scores the accuracy of yesterday's forecast, creates todays forecast from national demand and Open-Meteo weather data. The first chart is the daily error against a baseline and dashed lines mark a new model version</p>
+  <img id="fc-err" alt="Daily forecast error of model and baseline">
+  <img id="fc-day" alt="The last scored day and today's forecast">
+  <p class="chess-note" id="fc-miss" hidden>Charts failed to load here, open the results page to see them</p>
+  <div class="flick-nav">
+    <a class="close" href="https://onafuwadav.github.io/uk-electricity-demand-forecast/" target="_blank" rel="noopener">Open results page</a>
+    <a class="close" href="https://github.com/Onafuwadav/uk-electricity-demand-forecast" target="_blank" rel="noopener">Code on GitHub</a>
+  </div>
+</dialog>
+  
 <dialog id="chess" aria-labelledby="chess-title">
   <div class="rack-head">
     <h2 id="chess-title">Chess table</h2>
@@ -485,7 +502,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
       { title: 'Autofocus for phonon microscopy', kind: 'Dissertation', blurb: 'Autofocus system for phonon microscope to account for drift during scans' },
       { title: 'Virtual Reality CAD Viewer', kind: 'University group project', blurb: 'Qt, VTK and VR viewer for 3d CAD/STL models' },
       { title: 'Attention news classifier', kind: 'University coursework, extended', blurb: 'Multi-head self attention in PyTorch to classify news headlines. 61.4% accuracy against a 17.1% baseline' },
-      { title: 'UK electricity demand forecast', kind: 'University coursework, extended', blurb: 'A day ahead UK load forecaster in scikit-learn, cut RMSE by 28% against the baseline' },
+      { title: 'UK electricity demand forecast', kind: 'University coursework, extended', blurb: 'A day ahead UK load forecaster in scikit-learn that now runs live every night. It cut RMSE by 28% against the baseline' },
       { title: 'Pulse oximeter', kind: 'University group project', blurb: 'STM32 firmware that computes heart rate and SpO2, sending readings to a 7 segment displays' },
       { title: 'EEEBot', kind: 'University group project', blurb: 'Maze navigation and line following robot car' }
     ] },
@@ -603,11 +620,15 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
       ],
       [
         "What I used",
-        "Python, scikit-learn, pandas and REST APIs"
+        "Python, scikit-learn, pandas, REST APIs and GitHub Actions"
       ],
       [
         "Result",
         "Random Forest with calendar features cut RMSE by 28% against the baseline on unseen 2026 data"
+      ],
+      [
+        "Live forecast",
+        "A GitHub Actions job runs every night at 3am. It scores the accuracy of yesterday's forecast, creates todays forecast from national demand and Open-Meteo weather data. Once a month the model is retrained only keeping the new model if it scores better on recent unseen days. The results page charts the daily error against a same-as-yesterday baseline"
       ]
     ],
     "Pulse oximeter": [
@@ -786,7 +807,8 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     ]
   };
   var REPOS = {"Chess_bot": "Chess_bot", "Autofocus for phonon microscopy": "autofocus", "Virtual Reality CAD Viewer": "vtk-vr-cad-viewer", "Attention news classifier": "attention-news-classifier", "UK electricity demand forecast": "uk-electricity-demand-forecast", "Pulse oximeter": "pulse-oximeter", "EEEBot": "EEEBot", "Warehouse inspection robot": "ros2-warehouse-inspector"};
-  (function () { var n = 0; RECORDS.forEach(function (gn) { gn.items.forEach(function (r) { r.no = ++n; r.genre = gn.name; r.tracks = TRACKS[r.key || r.title] || []; r.repo = REPOS[r.title]; }); }); })();
+  var LIVE_PAGES = {"UK electricity demand forecast": "https://onafuwadav.github.io/uk-electricity-demand-forecast/"};
+  (function () { var n = 0; RECORDS.forEach(function (gn) { gn.items.forEach(function (r) { r.no = ++n; r.genre = gn.name; r.tracks = TRACKS[r.key || r.title] || []; r.repo = REPOS[r.title]; r.live = LIVE_PAGES[r.title]; }); }); })();
 
   /* ================= pixel helpers ================= */
   var FONT = {
@@ -1219,6 +1241,15 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     [[186, 78], [187, 78], [188, 77], [189, 74], [190, 76], [191, 78], [192, 77], [193, 78], [194, 78], [195, 77], [196, 74], [197, 76], [198, 78], [199, 78]].forEach(function (q) { R(c, q[0], q[1], 1, 1, '#8fe3ff'); });
     R(c, 204, 73, 4, 8, '#3a1a1a'); R(c, 210, 73, 4, 8, '#3a1a1a'); R(c, 204, 73, 4, 1, '#ff5a4a'); R(c, 207, 73, 1, 8, '#ff5a4a'); R(c, 204, 73, 1, 4, '#ff5a4a'); R(c, 204, 76, 4, 1, '#ff5a4a'); R(c, 210, 73, 4, 1, '#ff5a4a'); R(c, 213, 73, 1, 8, '#ff5a4a');
     R(c, 168, 78, 10, 6, '#c9d3d6'); R(c, 168, 80, 10, 1, '#57505e'); R(c, 178, 81, 4, 1, '#9aa0a8'); R(c, 199, 65, 2, 5, '#ffc46b');
+
+    /* wall screen behind the plant: the live demand forecast (model in purple, baseline in grey) */
+    R(c, 144, 28, 42, 22, '#57505e'); R(c, 145, 29, 40, 20, '#05080a');
+    for (i = 0; i < 38; i++) {
+      R(c, 146 + i, 44 + Math.round(2 * Math.sin(i * 0.8) + Math.sin(i * 2.1)), 1, 1, '#9aa0a8');
+      R(c, 146 + i, 46 + Math.round(Math.sin(i * 0.8 + 0.5)), 1, 1, '#c9a0ff');
+    }
+    for (y = 41; y < 49; y += 2) R(c, 172, y, 1, 1, '#ffc46b');
+    
     /* ranunculus Pon-Pon Trilly in a pot on the bench: ruffled pink blooms with green centres */
     R(c, 147, 75, 12, 9, '#d9605a'); R(c, 146, 74, 14, 2, '#ff8f7a');
     R(c, 150, 62, 1, 12, '#3f7d8c'); R(c, 154, 58, 1, 16, '#3f7d8c'); R(c, 157, 66, 1, 8, '#3f7d8c');
@@ -1431,7 +1462,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     if (room === 'player') { drawPlayer(); return; }
     if (room === 'games') {
       g.drawImage(bg4, 0, 0);
-      signBoard(g, 110, 33, 'FOCUS', hot === 'spot-focus'); signBoard(g, 188, 54, 'PULSE', hot === 'spot-pulse'); signBoard(g, 104, 108, 'MAZE', hot === 'spot-maze'); signBoard(g, 193, 108, 'CHESS', hot === 'spot-chess');
+      signBoard(g, 110, 33, 'FOCUS', hot === 'spot-focus'); signBoard(g, 188, 54, 'PULSE', hot === 'spot-pulse'); signBoard(g, 104, 108, 'MAZE', hot === 'spot-maze'); signBoard(g, 193, 108, 'CHESS', hot === 'spot-chess'); signBoard(g, 146, 29, 'FORECAST', hot === 'spot-forecast');
       signBoard(g, 213, 31, 'COUNTER>', hot === 'spot-gback');
       if (hot === 'spot-plant') {
         R(g, 139, 36, 57, 11, '#17111c'); R(g, 140, 37, 55, 9, '#f4e9d8'); R(g, 154, 46, 3, 2, '#f4e9d8'); R(g, 155, 48, 1, 1, '#f4e9d8');
@@ -1545,6 +1576,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
   addSpot('spot-focus', 100, 31, 43, 54, 'Try autofocus bench', function () { openFocus(); }, 'games');
   addSpot('spot-pulse', 166, 52, 58, 33, 'Try pulse oximeter', function () { openPulse(); }, 'games');
   addSpot('spot-plant', 144, 48, 20, 37, 'Ranunculus Pon-Pon Trilly, my favourite plant', function () { say('You found my fav flower :) its a ranunculus Pon-Pon Trilly', {}, gamesHome); }, 'games');
+  addSpot('spot-forecast', 144, 28, 42, 20, 'See the live demand forecast', function () { openForecast(); }, 'games');
   addSpot('spot-maze', 82, 106, 66, 46, 'Drive maze bot', function () { openMaze(); }, 'games');
   addSpot('spot-chess', 172, 106, 66, 46, 'Play some chess', function () { openChess(); }, 'games');
   addSpot('spot-gback', 211, 18, 41, 26, 'Back to counter', function () { setRoom('counter'); }, 'games');
@@ -1564,6 +1596,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     button('Try autofocus bench', openFocus);
     button('Try pulse oximeter', openPulse);
     button('Play some chess', openChess);
+    button('See live forecast', openForecast);
     button('Back to counter', function () { setRoom('counter'); });
   }
   function playerHome() {
@@ -1763,6 +1796,22 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
   }
 
+
+  /* live forecast screen */
+  var fcDlg = document.getElementById('forecast');
+  function openForecast() {
+    var err = document.getElementById('fc-err'), day = document.getElementById('fc-day'), miss = document.getElementById('fc-miss');
+    if (!err.getAttribute('src')) {
+      var stamp = '?d=' + new Date().toISOString().slice(0, 10);
+      [err, day].forEach(function (img) { img.onerror = function () { err.hidden = day.hidden = true; miss.hidden = false; }; });
+      err.src = LIVE_PAGES['UK electricity demand forecast'] + 'daily_error.png' + stamp;
+      day.src = LIVE_PAGES['UK electricity demand forecast'] + 'latest.png' + stamp;
+    }
+    showDlg(fcDlg);
+  }
+  wireClose(fcDlg, 'fc-close');
+  
+  
   /* ---------- EEEBot maze ---------- */
   var mazeDlg = document.getElementById('maze'), mz = document.getElementById('maze-cv').getContext('2d'), lcdEl = document.getElementById('lcd'), mazeStatus = document.getElementById('maze-status');
   var mcar = MazeSim.start(), mTyped = '', lcdTop = '', lcdBottom = '1F 2B 3CW 4ACW', mMoving = false, mSends = 0, mTrail = {}, mRun = 0;
@@ -1927,6 +1976,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
     if (i >= r.tracks.length) {
       h.textContent = 'Source code'; pEl.textContent = '';
       var a = document.createElement('a'); a.href = 'https://github.com/Onafuwadav/' + r.repo; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.repo; pEl.appendChild(a);
+      if (r.live) { var b = document.createElement('a'); b.href = r.live; b.target = '_blank'; b.rel = 'noopener'; b.textContent = 'Live forecast page'; pEl.appendChild(document.createElement('br')); pEl.appendChild(b); }
       return;
     }
     h.textContent = r.tracks[i][0]; pEl.textContent = r.tracks[i][1];
@@ -2146,6 +2196,7 @@ dialog#notes { width: min(780px, calc(100vw - 24px)); }
         card.appendChild(el('p', 'kind', r.kind));
         card.appendChild(el('p', 'sum', r.blurb));
         if (t) { var b = el('button', 'viewbtn', t[0]); b.type = 'button'; b.addEventListener('click', function () { t[1](); }); acts.appendChild(b); }
+        if (r.live) acts.appendChild(link('See the live forecast', r.live));
         if (r.repo) acts.appendChild(link('Code on GitHub', 'https://github.com/Onafuwadav/' + r.repo));
         if (acts.childNodes.length) card.appendChild(acts);
         if (r.tracks.length) {
